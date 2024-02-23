@@ -1,6 +1,6 @@
+import 'package:chatgpt/design/app_colors.dart';
 import 'package:chatgpt/features/chat/bloc/chat_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
@@ -13,6 +13,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   ChatBloc chatBloc = ChatBloc();
+  TextEditingController controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,9 +34,56 @@ class _ChatScreenState extends State<ChatScreen> {
 
             child: Column(
               children: [
-                Expanded(child: ListView()),
+                Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.only(top:12),
+                  itemCount: chatBloc.cachedMessage.length,
+                    itemBuilder:(context,index){
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: chatBloc.cachedMessage[index].role == 'assistant'
+                            ? AppColors.messageBgColor :
+                        Colors.transparent),
+                      margin: const EdgeInsets.only(bottom: 8.0),
+                      padding: const EdgeInsets.only(left: 16.0,right: 16.0,bottom: 8.0,top: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          chatBloc.cachedMessage[index].role =='assistant' ?
+                              Container(
+                                height: 32,
+                                width: 32,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(image:
+                                  AssetImage("assets/img_1.png",),fit: BoxFit.cover)
+                                ),
+
+                              ) : Container(
+                            height: 32,
+                            width: 32,
+                            decoration: const BoxDecoration(
+                                image: DecorationImage(image:
+                                AssetImage("assets/user.jpg",),fit: BoxFit.cover)
+                            ),
+                          ),
+                          const SizedBox(width: 18,),
+                          Expanded(
+                            child: Text(
+                              chatBloc.cachedMessage[index].content,
+                              style: TextStyle(
+                              fontSize: 18,
+                            ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    );
+                    }
+                )
+                ),
                 Container(
-                  height: 120,
+                  height: 100,
                   padding: EdgeInsets.all(16),
                   child: ListView(
                     scrollDirection: Axis.horizontal,
@@ -54,11 +102,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   margin: const EdgeInsets.only(left: 16, right: 16, top: 8),
-                  child: const Row(
+                  child:  Row(
                     children: [
                       Expanded(child: TextField(
+                        controller: controller,
                         cursorColor: Colors.white,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: "Ask Anything...",
                           border: OutlineInputBorder(
                               borderSide: BorderSide.none),
@@ -68,7 +117,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       )),
                       const SizedBox(width: 12),
                       InkWell(
-                        child: Icon(Icons.send_rounded,
+                        onTap: (){
+                          if(controller.text.isNotEmpty){
+                            String text =controller.text;
+                            controller.clear();
+                            chatBloc.add(ChatNewPromptEvent(prompt: text));
+                          }
+
+                        },
+                        child: const Icon(Icons.send_rounded,
                           color: Colors.white,
                         ),
                       )

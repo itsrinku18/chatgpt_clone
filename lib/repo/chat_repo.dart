@@ -15,7 +15,7 @@ Stream<http.Response> getChatGptResponseRepo(List<ChatMessageModel> messages) as
   
   http.Client client = http.Client();
   http.Request request =http.Request(
-      "POST",Uri.parse("http://10.0.2.2:5000/api/v1/generate_response"));
+      "POST",Uri.parse("http://192.168.0.110:5000/api/v1/generate_response"));
   request.headers['Accept'] ="text/event-stream";
   request.headers['Cache-Control'] ="no-cache";
   request.headers['Content-Type'] ="application/json";
